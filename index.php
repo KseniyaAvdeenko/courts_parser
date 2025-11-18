@@ -26,7 +26,7 @@ function processAndSaveCourts()
         
         // Сохраняем в файл
         file_put_contents($filename, $jsonData);
-        echo "\n💾 Данные сохранены в: " . $filename . "\n";
+        //echo "\n💾 Данные сохранены в: " . $filename . "\n";
         
         // Возвращаем JSON
         return $jsonData;
