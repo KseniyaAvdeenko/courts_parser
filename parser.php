@@ -10,7 +10,6 @@ class JsonCourtParser
 
     public function getCourtsLinks()
     {
-        echo "1. Загружаем список судов...\n";
         $courtsData = $this->fetchJson($this->config['base_url'] . '/ac/search');
         if (!$courtsData || !isset($courtsData['data'])) {
             echo "❌ Не удалось загрузить список судов\n";
@@ -22,7 +21,7 @@ class JsonCourtParser
     public function getAllCourtsData()
     {
         $courtLinks = $this->getCourtsLinks();
-        echo "2. Загружаем данные о руководителях...\n";
+        //echo "2. Загружаем данные о руководителях...\n";
         $federalData = $this->fetchJson($this->config['base_url'] . '/ac/map');
         if (!$federalData) {
             echo "❌ Не удалось загрузить данные о руководителях\n";
@@ -36,13 +35,13 @@ class JsonCourtParser
             }
         }
 
-        echo "3. Обрабатываем суды...\n";
+        //echo "3. Обрабатываем суды...\n";
         $result = [];
         $total = count($courtLinks);
 
         foreach ($courtLinks as $index => $court) {
             $number = $index + 1;
-            echo "[" . $number . "/" . $total . "] " . $court['name'] . "\n";
+            //echo "[" . $number . "/" . $total . "] " . $court['name'] . "\n";
 
             $enhancedCourt = $this->enhanceCourtData($court, $chiefsLookup);
             $result[] = $enhancedCourt;
@@ -58,7 +57,6 @@ class JsonCourtParser
     public function flat($data)
     {
         $result = [];
-
         foreach ($data as $item) {
             // Добавляем основной элемент
             $result[] = $item;
@@ -125,38 +123,34 @@ class JsonCourtParser
     }
     public function updateEnhanced($enhanced)
     {
-        $props = ["name", "okrug", "tag", "url", "cityname", "updated_at", "phone_help", "phone_confidence","recipient", "recipient2", "lat", "lon", "chief", "address", "email"];
+        $props = ["name", "okrug", "tag", "url", "cityname", "updated_at", "phone_help", "phone_confidence", "recipient", "recipient2", "lat", "lon", "chief", "address", "email"];
         return $this->keepOnly($enhanced, $props);
     }
     private function fetchRegionalData($courtUrl, $tag)
     {
-        $regionalUrls = [
-            str_replace('http://', 'https://', rtrim($courtUrl, '/')) . '/ac/map',
-            str_replace('http://', 'https://', rtrim($courtUrl, '/')) . '/map',
-            str_replace('http://', 'https://', rtrim($courtUrl, '/')) . '/search'
-        ];
 
-        foreach ($regionalUrls as $regionalUrl) {
-            echo "   🔍 Проверяем URL: " . $regionalUrl . "\n";
-            $regionalData = $this->fetchJson($regionalUrl);
 
-            if ($regionalData) {
-                $flattenedRegionalData = $this->flat($regionalData);
-                $regionalLookup = [];
-                foreach ($flattenedRegionalData as $regionalCourt) {
-                    if (isset($regionalCourt['tag'])) {
-                        $regionalLookup[$regionalCourt['tag']] = $regionalCourt;
-                    }
+        $regionalUrl = str_replace('http://', 'https://', rtrim($courtUrl, '/')) . '/ac/map';
+        //echo "   🔍 Проверяем URL: " . $regionalUrl . "\n";
+        $regionalData = $this->fetchJson($regionalUrl);
+
+        if ($regionalData) {
+            $flattenedRegionalData = $this->flat($regionalData);
+            $regionalLookup = [];
+            foreach ($flattenedRegionalData as $regionalCourt) {
+                if (isset($regionalCourt['tag'])) {
+                    $regionalLookup[$regionalCourt['tag']] = $regionalCourt;
                 }
+            }
 
-                if (!empty($regionalLookup)) {
-                    echo "   ✅ Данные получены с: " . $regionalUrl . "\n";
-                    return $regionalLookup;
-                }
+            if (!empty($regionalLookup)) {
+                //echo "   ✅ Данные получены с: " . $regionalUrl . "\n";
+                return $regionalLookup;
             }
         }
 
-        echo "   ⚠️ Не удалось получить региональные данные\n";
+
+        //echo "   ⚠️ Не удалось получить региональные данные\n";
         return null;
     }
     function keepOnly($data, $propertiesToKeep)
