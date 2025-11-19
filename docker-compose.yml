@@ -1,0 +1,9 @@
+version: "3.9"
+
+services:
+  court-parser:
+    build: .
+    container_name: court-parser
+    volumes:
+      - .:/app
+    command: php index.php
